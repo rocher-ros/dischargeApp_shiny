@@ -55,7 +55,11 @@ server <- function(input, output) {
       Q
     })
       
-
+     peak_time <- reactive({
+    #   #obtain the mean conductivity as the average of the selected period
+       peak <- myData()$date[max(myData()$EC)]
+       peak
+     })
   
   #function to make the plot, using ggplot 
   plotInput <- function(){
@@ -71,9 +75,9 @@ server <- function(input, output) {
       geom_ribbon(data=myData(), aes(x = x, ymin = EC_mean, ymax = EC), fill = 'yellow1')+
       ggtitle(input$siteDate) +
       theme(legend.position = "none") +
-      ylab(expression(paste("Conductivity ", (µS/cm)))) +
+      ylab(expression(paste("Conductivity ", "(ÂµS/cm)"))) +
       annotate("text", x = input$bg_max, y = max(myData()$EC), label = paste("Discharge is ", calcs(), "m3/s"), size = 6)
-    
+
     print(p)
   }
   
@@ -84,7 +88,7 @@ server <- function(input, output) {
   
   #structure to download the plot, only works if openeed in browser
   output$downloadPlot <- downloadHandler(
-    filename = "DischargePlot.png",
+    filename =  function() { paste(input$siteDate, '.png', sep='') },
     content = function(file) {
       png(file)
       print(plotInput())
@@ -95,6 +99,11 @@ server <- function(input, output) {
   output$Q <- renderText({
     paste("The discharge is", calcs(), "m3/s")
   })
+  
+  #structure to show the discharge value
+   output$peak <- renderText({
+     paste("The peak was at", peak_time())
+   })
   
 }
   
@@ -131,11 +140,12 @@ ui <- fluidPage(
     mainPanel(
      plotOutput('plot'),
 
-    h2(strong(textOutput("Q"))),  
+    h2(strong(textOutput("Q"))),
+    h2(strong(textOutput("peak"))),
     textInput('siteDate', "Enter site and date", 'SS YY/MM/DD') ,
     downloadButton('downloadPlot', 'Download Plot (only works if opened in the browser)'),    
    
-    helpText("Shiny app developed by G. Rocher-Ros (2016), developed for internal use at Umeå University. 
+    helpText("Shiny app developed by G. Rocher-Ros (2016), developed for internal use at UmeÃ¥ University. 
              Any third party use is under the users' responsability. For any questions contact gerardrocher@gmail.com ")
     
     )
