@@ -4,12 +4,12 @@
 # Code by G.Rocher-Ros, developed for research purposes and internal use, so no responsability 
 # over third party use is taken, for further details and questions contact: gerardrocher@gmail.com
 # 
-#Updated version, sample file and other information can be found at https://github.com/gmrocher/dischargeApp_shiny
-# 
-#Calculations done as "Moore, R. D. "Slug injection using salt in solution." 
+# Updated version, sample file and other information can be found at https://github.com/gmrocher/dischargeApp_shiny
+# Updated July 2017
+# Calculations done as "Moore, R. D. "Slug injection using salt in solution." 
 #                       Streamline Watershed Management Bulletin 8.2 (2005): 1-6.
 #
-#To launch use the command runApp(Discharge_App.R) or click "run App" in RStudio
+# To launch, run the script step by step and click "run App" in RStudio
 #
 
 
@@ -42,8 +42,17 @@ server <- function(input, output) {
       EC_corr <- myData()$EC - EC_mean
       # remove < 0 
       EC_corr <- ifelse(EC_corr <0.9, 0, EC_corr)
-      #convert conductivity to slt using the calibration curve
-      NaCl_s= EC_corr*input$slope
+      #I take the mean temperature during the peak
+      StreamTemp <- mean(myData()$Temp[myData()$x > input$bg_min & myData()$x < input$bg_max])
+      #And calculate the theortical slope of Cond vs NaCl, see github.com/gmrocher/Sal_Cond_Temp
+      slopeT <- 0.908 - 0.0304*StreamTemp + 6.63e-04*StreamTemp^2 - 7.27e-06*StreamTemp^3
+      
+      #convert conductivity to salt using the calibration curve
+      if(input$slope< 2){
+        NaCl_s= EC_corr*input$slope}
+      else{ NaCl_s= EC_corr*slopeT}
+      
+      
       
       #create a vector of the required length and with value of the time interval for the integration
       t=rep(input$interval,1, length(NaCl_s))
@@ -55,7 +64,14 @@ server <- function(input, output) {
       Q
     })
       
-     peak_time <- reactive({
+    slopeTemp <- reactive({
+      StreamTemp <- mean(myData()$Temp[myData()$x > input$bg_min & myData()$x < input$bg_max])
+    #And calculate the theortical slope of Cond vs NaCl, see github.com/gmrocher/Sal_Cond_Temp
+    slopeT <- 0.908 - 0.0304*StreamTemp + 6.63e-04*StreamTemp^2 - 7.27e-06*StreamTemp^3
+    slopeT
+    })
+    
+    peak_time <- reactive({
     #   #obtain the mean conductivity as the average of the selected period
        peak <- myData()$date[max(myData()$EC)]
        peak
@@ -104,6 +120,9 @@ server <- function(input, output) {
    output$peak <- renderText({
      paste("The peak was at", peak_time())
    })
+   output$slopeTemp <- renderText({
+     paste("The slope used was", round(slopeTemp(), 3))
+   })
   
 }
   
@@ -115,26 +134,27 @@ ui <- fluidPage(
     sidebarPanel(
       h5("Open a csv file obtained from a HoBo conductivity logger, with the columns: x, time,
          conductivity and temperature."),
-      h5("Then select the peak period and the background period (coloured in orange), and introduce the amount of salt, logging interval, and the calibration curve.", align = "left"),
+      h5("Then select the peak period (yellow) and the background period (coloured in orange), and introduce the amount of salt and logging interval", align = "left"),
       fileInput('file1', 'Choose CSV File',
                 accept=c('text/csv', 
                          'text/comma-separated-values,text/plain', 
                          '.csv')),
       numericInput("nacl", "Amount of salt (g):", 1000,
                    min = 1, max = 50000),
-      numericInput("interval", "Frequency of the logger (s):", 1,
-                   min = 0, max = 100),
-      numericInput("slope", "Calibration constant:", 0.4441,
-                   min = 0, max = 10000),
       numericInput("slug_end", "Select the end of the slug (x)", 10000,
                    min = 1, max = 100000),
       numericInput("bg_min", "Select the start of the slug (x)", 10,
                    min = 1, max = 100000),
-      numericInput("bg_max", "Select the before the peak to obtain BG conductivity (x)", 2000,
+      numericInput("bg_max", "Select a time before the peak to obtain BG conductivity (x)", 2000,
                    min = 1, max = 100000),
+      numericInput("interval", "Frequency of the logger (s):", 1,
+                   min = 0, max = 100),
+      numericInput("slope", "Calibration constant (slope), not used if >2:", 100,
+                   min = 0, max = 10000),
+      helpText("Enter a number if you did a field calibration, if not, we use the relationship dependent in the temperature"),
+      
       helpText("Observation: This app is intended to measure discharge using a slug injection of salt, it requires 
-               data recorded with a HoBo conductivity logger, a correction
-               coefficient of the response of conductivity against NaCl and the exact amount of salt injected.")
+               data recorded with a HoBo conductivity logger.")
      
     ),
     mainPanel(
@@ -142,6 +162,7 @@ ui <- fluidPage(
 
     h2(strong(textOutput("Q"))),
     h2(strong(textOutput("peak"))),
+    h3(strong(textOutput("slopeTemp"))),
     textInput('siteDate', "Enter site and date", 'SS YY/MM/DD') ,
     downloadButton('downloadPlot', 'Download Plot (only works if opened in the browser)'),    
    
@@ -153,3 +174,4 @@ ui <- fluidPage(
 )
 
 shinyApp(ui = ui, server = server)
+
