@@ -132,8 +132,7 @@ ui <- fluidPage(
   titlePanel("Discharge measurement using a salt slug"),
   sidebarLayout(
     sidebarPanel(
-      h5("Open a csv file obtained from a HoBo conductivity logger, with the columns: x, time,
-         conductivity and temperature."),
+      h5("Open a csv file obtained from a HoBo conductivity logger, with the columns: x, time, conductivity and temperature."),
       h5("Then select the peak period (yellow) and the background period (coloured in orange), and introduce the amount of salt and logging interval", align = "left"),
       fileInput('file1', 'Choose CSV File',
                 accept=c('text/csv', 
@@ -153,8 +152,7 @@ ui <- fluidPage(
                    min = 0, max = 10000),
       helpText("Enter a number if you did a field calibration, if not, we use the relationship dependent in the temperature"),
       
-      helpText("Observation: This app is intended to measure discharge using a slug injection of salt, it requires 
-               data recorded with a HoBo conductivity logger.")
+      helpText("Observation: This app is intended to measure discharge using a slug injection of salt, it requires data recorded with a HoBo conductivity logger.")
      
     ),
     mainPanel(
@@ -166,8 +164,7 @@ ui <- fluidPage(
     textInput('siteDate', "Enter site and date", 'SS YY/MM/DD') ,
     downloadButton('downloadPlot', 'Download Plot (only works if opened in the browser)'),    
    
-    helpText("Shiny app developed by G. Rocher-Ros (2016), developed for internal use at Umeå University. 
-             Any third party use is under the users' responsability. For any questions contact gerardrocher@gmail.com ")
+    helpText("Shiny app developed by G. Rocher-Ros (2016), developed for internal use at Umeå University. Any third party use is under the users' responsability. For any questions contact gerardrocher@gmail.com ")
     
     )
   )
