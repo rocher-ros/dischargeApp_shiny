@@ -57,7 +57,7 @@ ui <- fluidPage(tabsetPanel(
       mainPanel(
         tableOutput("table"),
         helpText(
-          "Shiny app developed by G. Rocher-Ros (2016), developed for internal use at Umeå University. Any third party use is under the users' responsability. For any questions contact gerardrocher@gmail.com "
+          "Shiny app developed by G. Rocher-Ros (2016), developed for internal use at UmeÃ¥ University. Any third party use is under the users' responsability. For any questions contact gerardrocher@gmail.com "
         )
         
       )
@@ -126,7 +126,7 @@ ui <- fluidPage(tabsetPanel(
       downloadButton('downloadPlot', 'Download Plot'),
       
       helpText(
-        "Shiny app developed by G. Rocher-Ros (2016), developed for internal use at Umeå University. Any third party use is under the users' responsability. For any questions contact gerardrocher@gmail.com "
+        "Shiny app developed by G. Rocher-Ros (2016), developed for internal use at UmeÃ¥ University. Any third party use is under the users' responsability. For any questions contact gerardrocher@gmail.com "
       )
       
     )
@@ -159,7 +159,7 @@ server <-
                         choices = vars)
       updateSelectInput(session,
                         "cond_lab",
-                        "Select column with conductivity (µS/cm)",
+                        "Select column with conductivity (ÂµS/cm)",
                         choices = vars)
       updateSelectInput(session,
                         "temp_lab",
