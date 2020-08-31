@@ -5,7 +5,7 @@
 # over third party use is taken, for further details and questions contact: gerardrocher@gmail.com
 #
 # Updated version, sample file and other information can be found at https://github.com/rocher-ros/dischargeApp_shiny
-# Updated July 2017
+# Updated August 2020
 # Calculations done as "Moore, R. D. "Slug injection using salt in solution."
 #                       Streamline Watershed Management Bulletin 8.2 (2005): 1-6.
 
